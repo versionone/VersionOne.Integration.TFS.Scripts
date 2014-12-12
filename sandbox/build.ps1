@@ -20,7 +20,7 @@ if ($new -eq "true"){
     Remove-AzureService -ServiceName $azure_service_name -Force
  
     Write-Host 'Spinning New Azure VM'
-    New-AzureQuickVM -ServiceName $azure_service_name -Windows -Name $vm_name -ImageName $image_name -Password $cred.GetNetworkCredential().Password -AdminUsername $cred.UserName -InstanceSize Medium -Location "South Central US" -WaitForBoot
+    New-AzureQuickVM -ServiceName $azure_service_name -Windows -Name $vm_name -ImageName $image_name -Password $cred.GetNetworkCredential().Password -AdminUsername $cred.UserName -InstanceSize Medium -Location "North Europe" -WaitForBoot
 
     Write-Host 'Adding Azure End Point 8080 for TFS'
     Get-AzureVM -ServiceName $azure_service_name -Name $vm_name | Add-AzureEndpoint -Name "TFS" -Protocol "tcp" -PublicPort 8080 -LocalPort 8080 | Update-AzureVM
