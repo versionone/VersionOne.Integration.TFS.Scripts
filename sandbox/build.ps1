@@ -10,6 +10,14 @@ Param(
 
 Write-Host "Starting execution at:"(Get-Date -Format g)
 
+Write-Host "vm_username: $vm_username"
+Write-Host "vm_password: $vm_password"
+Write-Host "vm_name: $vm_name"
+Write-Host "new: $new"
+Write-Host "install_versionone: $install_versionone"
+Write-Host "install_tfs_sampledata: $install_tfs_sampledata"
+Write-Host "install_tfs_integration: $install_tfs_integration"
+
 $secpasswd = ConvertTo-SecureString $vm_password -AsPlainText -Force
 $cred=New-Object System.Management.Automation.PSCredential ($vm_username, $secpasswd)
 
