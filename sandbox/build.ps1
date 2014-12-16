@@ -8,7 +8,7 @@ Param(
     [string]$install_tfs_integration
 )
 
-$azure_service_name = $vm_name
+$azure_service_name = "$vm_name"
 
 Write-Host "Starting execution at:"(Get-Date -Format g)
 
@@ -16,8 +16,6 @@ $secpasswd = ConvertTo-SecureString $vm_password -AsPlainText -Force
 $cred=New-Object System.Management.Automation.PSCredential ($vm_username, $secpasswd)
 
 if ($new -eq "true"){
-    #$image_name = "sql2012exp-20140925-13769"
-    #$image_name = "sqlftstemplate-202605-71354"
     $image_name = "sqlvstemplate"
     Write-Host 'Removing previous VM'
     Remove-AzureVM -ServiceName $azure_service_name -Name $vm_name -DeleteVHD
