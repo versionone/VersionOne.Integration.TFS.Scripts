@@ -2,10 +2,10 @@ Param(
     [string]$vm_username,
     [string]$vm_password,
     [string]$vm_name,
-    [string]$new,
-    [string]$install_versionone,
-    [string]$install_tfs_sampledata,
-    [string]$install_tfs_integration
+    [string]$new="true",
+    [string]$install_versionone="false",
+    [string]$install_tfs_sampledata="true",
+    [string]$install_tfs_integration="false"
 )
 
 Write-Host "Starting execution at:"(Get-Date -Format g)
