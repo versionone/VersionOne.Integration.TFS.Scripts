@@ -2,10 +2,13 @@ Param(
     [string]$vm_username,
     [string]$vm_password,
     [string]$vm_name,
-    [string]$azure_service_name,
     [string]$new,
+    [string]$install_versionone,
+    [string]$install_tfs_sampledata,
     [string]$install_tfs_integration
 )
+
+$azure_service_name = $vm_name
 
 Write-Host "Starting execution at:"(Get-Date -Format g)
 
