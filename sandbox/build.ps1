@@ -37,48 +37,43 @@ if ($new -eq "true"){
  
     Write-Host 'Spinning New Azure VM'
     New-AzureQuickVM -ServiceName $vm_name -Windows -Name $vm_name -ImageName $image_name -Password $cred.GetNetworkCredential().Password -AdminUsername $cred.UserName -InstanceSize Medium -Location "South Central US" -WaitForBoot
-
-    Write-Host 'Adding Azure End Point 8080 for TFS'
-    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TFS" -Protocol "tcp" -PublicPort 8080 -LocalPort 8080 | Update-AzureVM
-
-    Write-Host 'Adding Azure End Point 9090 for Tfs Listener'
-    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TfsListener" -Protocol "tcp" -PublicPort 9090 -LocalPort 9090 | Update-AzureVM
 }
 
 if($install_tfs -eq "true"){
     Write-Host "Installing Tfs..."
     #$script_path_step1 = 'Install-Tfs.ps1'
+    Write-Host 'Adding Azure End Point 8080 for TFS'
+    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TFS" -Protocol "tcp" -PublicPort 8080 -LocalPort 8080 | Update-AzureVM
+
+    $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+
+    While ($VMStatus.InstanceStatus -ne "ReadyRole")
+    {
+      write-host "Waiting...Current Status = " $VMStatus.Status
+      Start-Sleep -Seconds 15
+     
+      $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+    }
+
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step1"
 
     $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -VMName $vm_name -Credential $cred
     $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
     $boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
 
-    Write-Host "Restarting VM after tool installation..."
+    Write-Host "Restarting VM after tools installation..."
     Restart-AzureVM -ServiceName $vm_name -Name $vm_name
-
-    # Wait for server to reboot
-    $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
-     
-    While ($VMStatus.InstanceStatus -ne "ReadyRole")
-    {
-      write-host "Waiting...Current Status = " $VMStatus.Status
-      Start-Sleep -Seconds 15
-     
-      $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
-    }
 }
 
 if ($install_versionone -eq "true")
 {
     Write-Host "Installing VersionOne..."
     #$script_path_step2 = 'Install-VersionOne.ps1'
-    Write-Host "Restarting VM"
-    Restart-AzureVM -ServiceName $vm_name -Name $vm_name
+    Write-Host 'Adding Azure End Point 80 for HTTP'
+    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "HTTP" -Protocol "tcp" -PublicPort 80 -LocalPort 80 | Update-AzureVM
 
-    # Wait for server to reboot
     $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
-     
+
     While ($VMStatus.InstanceStatus -ne "ReadyRole")
     {
       write-host "Waiting...Current Status = " $VMStatus.Status
@@ -86,10 +81,6 @@ if ($install_versionone -eq "true")
      
       $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
     }
-
-    Write-Host 'Adding Azure End Point 80 for HTTP'
-    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "HTTP" -Protocol "tcp" -PublicPort 80 -LocalPort 80 | Update-AzureVM
-
 
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2"
 }
@@ -116,6 +107,19 @@ if ($install_tfs_sampledata -eq "true"){
 }
 
 if ($install_tfs_integration -eq "true"){
+    Write-Host 'Adding Azure End Point 9090 for Tfs Listener'
+    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TfsListener" -Protocol "tcp" -PublicPort 9090 -LocalPort 9090 | Update-AzureVM
+
+    $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+
+    While ($VMStatus.InstanceStatus -ne "ReadyRole")
+    {
+      write-host "Waiting...Current Status = " $VMStatus.Status
+      Start-Sleep -Seconds 15
+     
+      $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+    }
+
     #$script_path_step5 = 'Install-TfsListener.ps1'
     $tfs_listener_remote = "https://v1integrations.blob.core.windows.net/downloads/VersionOne.Integration.Tfs.Listener.Installer.msi"
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step5" `
