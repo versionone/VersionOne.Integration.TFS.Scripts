@@ -53,6 +53,20 @@ $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -
 $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
 $boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
 
+Write-Host "Restarting VM after tool installation..."
+Restart-AzureVM -ServiceName $vm_name -Name $vm_name
+
+# Wait for server to reboot
+$VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+ 
+While ($VMStatus.InstanceStatus -ne "ReadyRole")
+{
+  write-host "Waiting...Current Status = " $VMStatus.Status
+  Start-Sleep -Seconds 15
+ 
+  $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+}
+
 if ($install_versionone -eq "true")
 {
     $boxstarterVM | Install-BoxstarterPackage -Package VersionOne -Credential $cred
