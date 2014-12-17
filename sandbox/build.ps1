@@ -1,7 +1,7 @@
 Param(
-    [string]$vm_username,
-    [string]$vm_password,
-    [string]$vm_name,
+    [string]$vm_username="v1deploy",
+    [string]$vm_password="Versi0n1.c26nu",
+    [string]$vm_name="tfs2013vm",
     [string]$new="true",
     [string]$install_versionone="false",
     [string]$install_tfs_sampledata="true",
@@ -37,14 +37,19 @@ if ($new -eq "true"){
     Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TfsListener" -Protocol "tcp" -PublicPort 9090 -LocalPort 9090 | Update-AzureVM
 }
 
+
+$script_path_step0 = 'Install-Tfs.ps1'
 $script_path_step1 = 'New-TeamProject.ps1'
 $script_path_step2 = 'New-SampleData.ps1'
 $script_path_step3 = 'Install-TfsListener.ps1'
 $script_path_step4 = 'Configure-TfsListener.ps1'
 
+
+Write-Host "Installing Tfs..."
+#$script_path_step0 = 'Install-Tfs.ps1'
+Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step0"
+
 $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -VMName $vm_name -Credential $cred
-$boxstarterVM | Install-BoxstarterPackage -Package tfsexpress.standard -Credential $cred
-$boxstarterVM | Install-BoxstarterPackage -Package tfsexpress.build -Credential $cred
 $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
 $boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
 
