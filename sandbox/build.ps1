@@ -53,9 +53,6 @@ $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -
 $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
 $boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
 
-Write-Host "Restarting VM after tool installation..."
-Restart-AzureVM -ServiceName $vm_name -Name $vm_name
-
 if ($install_versionone -eq "true")
 {
     $boxstarterVM | Install-BoxstarterPackage -Package VersionOne -Credential $cred
