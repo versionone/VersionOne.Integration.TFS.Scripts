@@ -73,6 +73,20 @@ if ($install_versionone -eq "true")
 {
     Write-Host "Installing VersionOne..."
     #$script_path_step2 = 'Install-VersionOne.ps1'
+    Write-Host "Restarting VM"
+    Restart-AzureVM -ServiceName $vm_name -Name $vm_name
+
+    # Wait for server to reboot
+    $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+     
+    While ($VMStatus.InstanceStatus -ne "ReadyRole")
+    {
+      write-host "Waiting...Current Status = " $VMStatus.Status
+      Start-Sleep -Seconds 15
+     
+      $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+    }
+
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2"
 }
 
