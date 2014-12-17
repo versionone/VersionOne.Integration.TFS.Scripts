@@ -3,6 +3,7 @@ Param(
     [string]$vm_password="Versi0n1.c26nu",
     [string]$vm_name="tfs2013vm",
     [string]$new="true",
+    [string]$install_tfs="true",
     [string]$install_versionone="false",
     [string]$install_tfs_sampledata="true",
     [string]$install_tfs_integration="false"
@@ -21,6 +22,12 @@ Write-Host "install_tfs_integration: $install_tfs_integration"
 $secpasswd = ConvertTo-SecureString $vm_password -AsPlainText -Force
 $cred=New-Object System.Management.Automation.PSCredential ($vm_username, $secpasswd)
 
+$script_path_step0 = 'Install-Tfs.ps1'
+$script_path_step1 = 'New-TeamProject.ps1'
+$script_path_step2 = 'New-SampleData.ps1'
+$script_path_step3 = 'Install-TfsListener.ps1'
+$script_path_step4 = 'Configure-TfsListener.ps1'
+
 if ($new -eq "true"){
     $image_name = "sqlvstemplate"
     Write-Host 'Removing previous VM'
@@ -37,34 +44,28 @@ if ($new -eq "true"){
     Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "TfsListener" -Protocol "tcp" -PublicPort 9090 -LocalPort 9090 | Update-AzureVM
 }
 
+if($install_tfs -eq "true"){
+    Write-Host "Installing Tfs..."
+    #$script_path_step0 = 'Install-Tfs.ps1'
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step0"
 
-$script_path_step0 = 'Install-Tfs.ps1'
-$script_path_step1 = 'New-TeamProject.ps1'
-$script_path_step2 = 'New-SampleData.ps1'
-$script_path_step3 = 'Install-TfsListener.ps1'
-$script_path_step4 = 'Configure-TfsListener.ps1'
+    $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -VMName $vm_name -Credential $cred
+    $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
+    $boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
 
+    Write-Host "Restarting VM after tool installation..."
+    Restart-AzureVM -ServiceName $vm_name -Name $vm_name
 
-Write-Host "Installing Tfs..."
-#$script_path_step0 = 'Install-Tfs.ps1'
-Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step0"
-
-$boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -VMName $vm_name -Credential $cred
-$boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
-$boxstarterVM | Install-BoxstarterPackage -Package tfs2013powertools -Credential $cred
-
-Write-Host "Restarting VM after tool installation..."
-Restart-AzureVM -ServiceName $vm_name -Name $vm_name
-
-# Wait for server to reboot
-$VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
- 
-While ($VMStatus.InstanceStatus -ne "ReadyRole")
-{
-  write-host "Waiting...Current Status = " $VMStatus.Status
-  Start-Sleep -Seconds 15
- 
-  $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+    # Wait for server to reboot
+    $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+     
+    While ($VMStatus.InstanceStatus -ne "ReadyRole")
+    {
+      write-host "Waiting...Current Status = " $VMStatus.Status
+      Start-Sleep -Seconds 15
+     
+      $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
+    }
 }
 
 if ($install_versionone -eq "true")
@@ -101,8 +102,8 @@ if ($install_tfs_integration -eq "true"){
 
     #$script_path_step4 = 'Configure-TfsListener.ps1'
     $Url="https://www14.v1host.com/v1sdktesting/"
-    $UserName="remote"
-    $Password="remote"
+    $UserName="admin"
+    $Password="admin"
     $TfsUrl="http://$vm_name.cloudapp.net:8080/tfs/DefaultCollection/"
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step4" `
     @($vm_name,$Url,$UserName,$Password,$TfsUrl,$vm_username,$vm_password)
