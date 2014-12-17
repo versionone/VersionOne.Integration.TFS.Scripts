@@ -1,0 +1,1 @@
+cinst versionone -Source https://www.myget.org/F/versionone/

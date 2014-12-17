@@ -22,11 +22,12 @@ Write-Host "install_tfs_integration: $install_tfs_integration"
 $secpasswd = ConvertTo-SecureString $vm_password -AsPlainText -Force
 $cred=New-Object System.Management.Automation.PSCredential ($vm_username, $secpasswd)
 
-$script_path_step0 = 'Install-Tfs.ps1'
-$script_path_step1 = 'New-TeamProject.ps1'
-$script_path_step2 = 'New-SampleData.ps1'
-$script_path_step3 = 'Install-TfsListener.ps1'
-$script_path_step4 = 'Configure-TfsListener.ps1'
+$script_path_step1 = 'Install-Tfs.ps1'
+$script_path_step2 = 'Install-VersionOne.ps1'
+$script_path_step3 = 'New-TeamProject.ps1'
+$script_path_step4 = 'New-SampleData.ps1'
+$script_path_step5 = 'Install-TfsListener.ps1'
+$script_path_step6 = 'Configure-TfsListener.ps1'
 
 if ($new -eq "true"){
     $image_name = "sqlvstemplate"
@@ -46,8 +47,8 @@ if ($new -eq "true"){
 
 if($install_tfs -eq "true"){
     Write-Host "Installing Tfs..."
-    #$script_path_step0 = 'Install-Tfs.ps1'
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step0"
+    #$script_path_step1 = 'Install-Tfs.ps1'
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step1"
 
     $boxstarterVM = Enable-BoxstarterVM -Provider azure -CloudServiceName $vm_name -VMName $vm_name -Credential $cred
     $boxstarterVM | Install-BoxstarterPackage -Package git -Credential $cred
@@ -70,19 +71,21 @@ if($install_tfs -eq "true"){
 
 if ($install_versionone -eq "true")
 {
-    $boxstarterVM | Install-BoxstarterPackage -Package VersionOne -Credential $cred
+    Write-Host "Installing VersionOne..."
+    #$script_path_step2 = 'Install-VersionOne.ps1'
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2"
 }
 
 if ($install_tfs_sampledata -eq "true"){
     Write-Host "Setting sample data..."
-    #$script_path_step1 = 'New-TeamProject.ps1'
+    #$script_path_step3 = 'New-TeamProject.ps1'
     $CollectionUri = "http://localhost:8080/tfs/DefaultCollection"
     $ProjectName = "AnotherTeamProject"
     $ProcessTemplateName = "MSF for Agile Software Development 2013.4"
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step1" `
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step3" `
     @($CollectionUri,$ProjectName,$ProcessTemplateName)
 
-    #$script_path_step2 = 'New-SampleData.ps1'
+    #$script_path_step4 = 'New-SampleData.ps1'
     $tfs_team_project_collection = "http://localhost:8080/tfs"
     $tfs_team_project = "AnotherTeamProject"
     $tfs_build_name = "Another Build"
@@ -90,22 +93,22 @@ if ($install_tfs_sampledata -eq "true"){
     $tfs_workspace = "AnotherWorkspace"
     $tfs_git_repository = "https://github.com/lremedi/Automation.Tfs"
     $tfs_automation_remote = "https://portalvhdsw36vjbsgqb26p.blob.core.windows.net/installers/Automation.Tfs.exe"
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step4" `
     @($tfs_team_project_collection,$tfs_team_project, $tfs_build_name, $tfs_build_description, $tfs_workspace, $tfs_git_repository, $tfs_automation_remote)
 }
 
 if ($install_tfs_integration -eq "true"){
-    #$script_path_step3 = 'Install-TfsListener.ps1'
+    #$script_path_step5 = 'Install-TfsListener.ps1'
     $tfs_listener_remote = "https://v1integrations.blob.core.windows.net/downloads/VersionOne.Integration.Tfs.Listener.Installer.msi"
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step3" `
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step5" `
     @($tfs_listener_remote)
 
-    #$script_path_step4 = 'Configure-TfsListener.ps1'
+    #$script_path_step6 = 'Configure-TfsListener.ps1'
     $Url="https://www14.v1host.com/v1sdktesting/"
     $UserName="admin"
     $Password="admin"
     $TfsUrl="http://$vm_name.cloudapp.net:8080/tfs/DefaultCollection/"
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step4" `
+    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step6" `
     @($vm_name,$Url,$UserName,$Password,$TfsUrl,$vm_username,$vm_password)
 }
 
