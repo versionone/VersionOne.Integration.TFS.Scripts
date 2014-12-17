@@ -126,7 +126,7 @@ if ($install_tfs_integration -eq "true"){
     @($tfs_listener_remote)
 
     #$script_path_step6 = 'Configure-TfsListener.ps1'
-    $Url="https://www14.v1host.com/v1sdktesting/"
+    $Url="http://$vm_name.cloudapp.net/VersionOne/"
     $UserName="admin"
     $Password="admin"
     $TfsUrl="http://$vm_name.cloudapp.net:8080/tfs/DefaultCollection/"
