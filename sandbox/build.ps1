@@ -87,6 +87,10 @@ if ($install_versionone -eq "true")
       $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
     }
 
+    Write-Host 'Adding Azure End Point 80 for HTTP'
+    Get-AzureVM -ServiceName $vm_name -Name $vm_name | Add-AzureEndpoint -Name "HTTP" -Protocol "tcp" -PublicPort 80 -LocalPort 80 | Update-AzureVM
+
+
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2"
 }
 
