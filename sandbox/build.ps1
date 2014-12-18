@@ -121,7 +121,7 @@ if ($install_tfs_integration -eq "true"){
     }
 
     #$script_path_step5 = 'Install-TfsListener.ps1'
-    $tfs_listener_remote = "https://v1integrations.blob.core.windows.net/downloads/VersionOne.Integration.Tfs.Listener.Installer.msi"
+    $tfs_listener_remote = "https://v1platform.blob.core.windows.net/downloads/VersionOne.Integration.Tfs.Listener.Installer.msi"
     Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step5" `
     @($tfs_listener_remote)
 
