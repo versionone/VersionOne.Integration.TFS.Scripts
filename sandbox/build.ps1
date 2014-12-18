@@ -4,7 +4,8 @@ Param(
     [string]$vm_name="tfs2013vm",
     [string]$new="true",
     [string]$install_tfs="true",
-    [string]$install_versionone="false",
+    [string]$install_versionone_v1auth="false",
+    [string]$install_versionone_wauth="false",
     [string]$install_tfs_sampledata="true",
     [string]$install_tfs_integration="false"
 )
@@ -64,8 +65,7 @@ if($install_tfs -eq "true"){
     Write-Host "Restarting VM after tools installation..."
     Restart-AzureVM -ServiceName $vm_name -Name $vm_name
 }
-
-if ($install_versionone -eq "true")
+if (($install_versionone_v1auth -eq "true") -or ($install_versionone_wauth -eq "true"))
 {
     Write-Host "Installing VersionOne..."
     #$script_path_step2 = 'Install-VersionOne.ps1'
@@ -82,7 +82,25 @@ if ($install_versionone -eq "true")
       $VMStatus = Get-AzureVM -ServiceName $vm_name -name $vm_name
     }
 
-    Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2"
+    if ($install_versionone_v1auth -eq "true")
+    {
+        $instanceName='VersionOneV1Auth'
+        $version='15.0.0.6469'
+        $authMode="V1"
+        $dbName='VersionOneV1Auth'
+        Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
+        @($instanceName,$version,$authMode,$dbName)
+    }
+    if ($install_versionone_wauth -eq "true")
+    {
+        $instanceName='VersionOneWAuth'
+        $version='15.0.0.6469'
+        $authMode="IIS"
+        $dbName='VersionOneWAuth'
+        Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
+        @($instanceName,$version,$authMode,$dbName)
+    }
+
 }
 
 if ($install_tfs_sampledata -eq "true"){
