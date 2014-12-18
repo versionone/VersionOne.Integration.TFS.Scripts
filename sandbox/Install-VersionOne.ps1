@@ -34,5 +34,6 @@ if (!$silentArgs) {
 }
 
 Write-Host "Executing $local $silentArgs"
-iex "& '$local' $silentArgs"
+$versionone_cmd = "`"$local`" $silentArgs"
+iex "& $versionone_cmd"
 Write-Host "Finished installing: $instanceName"
