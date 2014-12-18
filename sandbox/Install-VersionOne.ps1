@@ -33,5 +33,6 @@ if (!$silentArgs) {
   $silentArgs = $silentArgs + " " + $v1Params["InstanceName"]
 }
 
-Write-Host "& $local $silentArgs"
-iex "& $local $silentArgs"
+Write-Host "Executing $local $silentArgs"
+iex "& '$local' $silentArgs"
+Write-Host "Finished installing: $instanceName"
