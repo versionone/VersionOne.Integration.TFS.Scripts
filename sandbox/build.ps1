@@ -86,7 +86,7 @@ if (($install_versionone_v1auth -eq "true") -or ($install_versionone_wauth -eq "
     {
         $instanceName='VersionOneV1Auth'
         $version='15.0.0.6469'
-        $authMode="V1"
+        $authMode='V1'
         $dbName='VersionOneV1Auth'
         Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
         @($instanceName,$version,$authMode,$dbName)
@@ -95,7 +95,7 @@ if (($install_versionone_v1auth -eq "true") -or ($install_versionone_wauth -eq "
     {
         $instanceName='VersionOneWAuth'
         $version='15.0.0.6469'
-        $authMode="IIS"
+        $authMode='IIS'
         $dbName='VersionOneWAuth'
         Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
         @($instanceName,$version,$authMode,$dbName)

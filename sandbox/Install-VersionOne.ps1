@@ -33,7 +33,7 @@ if (!$silentArgs) {
   $silentArgs = $silentArgs + " " + $v1Params["InstanceName"]
 }
 
-Write-Host "Executing $local $silentArgs"
 $versionone_cmd = "`"$local`" $silentArgs"
-iex "& $versionone_cmd"
+Write-Host "$versionone_cmd"
+Start-Process -FilePath $local -ArgumentList $silentArgs -Wait
 Write-Host "Finished installing: $instanceName"
