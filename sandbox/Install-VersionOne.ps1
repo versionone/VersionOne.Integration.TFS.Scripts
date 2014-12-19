@@ -34,6 +34,18 @@ if (!$silentArgs) {
 }
 
 $versionone_cmd = "`"$local`" $silentArgs"
+
 Write-Host "$versionone_cmd"
-Start-Process -FilePath $local -ArgumentList $silentArgs -Wait
+
+$psi = new-object System.Diagnostics.ProcessStartInfo
+$psi.RedirectStandardError = $true
+$psi.UseShellExecute = $false
+$psi.FileName = $local
+$psi.Arguments = "$silentArgs"
+if ([Environment]::OSVersion.Version -ge (new-object 'Version' 6,0)){
+  $psi.Verb = "runas"
+}
+$psi.WorkingDirectory = get-location
+$s = [System.Diagnostics.Process]::Start($psi)
+
 Write-Host "Finished installing: $instanceName"
