@@ -90,7 +90,7 @@ if (($install_versionone_v1auth -eq "true") -or ($install_versionone_wauth -eq "
         Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
         @($instanceName,$authMode,$dbName)
     } 
-    elseif ($install_versionone_wauth -eq "true"){
+    if ($install_versionone_wauth -eq "true"){
         $instanceName='VersionOneWAuth'
         $authMode='IIS'
         $dbName='VersionOneWAuth'
