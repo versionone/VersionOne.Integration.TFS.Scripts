@@ -86,18 +86,18 @@ if (($install_versionone_v1auth -eq "true") -or ($install_versionone_wauth -eq "
 
     if ($install_versionone_v1auth -eq "true")
     {
-        $instanceName='VersionOneV1Auth'
+        $VersionOneV1Auth='VersionOneV1Auth'
         $authMode='V1'
         $dbName='VersionOneV1Auth'
         Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
-        @($instanceName,$authMode,$dbName)
+        @($VersionOneV1Auth,$authMode,$dbName)
     } 
     if ($install_versionone_wauth -eq "true"){
-        $instanceName='VersionOneWAuth'
+        $VersionOneWAuth='VersionOneWAuth'
         $authMode='IIS'
         $dbName='VersionOneWAuth'
         Invoke-RmtAzure "$vm_username" "$vm_password" "$vm_name" "$vm_name" "$script_path_step2" `
-        @($instanceName,$authMode,$dbName)
+        @($VersionOneWAuth,$authMode,$dbName)
     }
 
 }
@@ -143,7 +143,7 @@ if ($install_tfs_integration -eq "true"){
     @($tfs_listener_remote)
 
     #$script_path_step6 = 'Configure-TfsListener.ps1'
-    $Url="http://$vm_name.cloudapp.net/VersionOne/"
+    $Url="http://$vm_name.cloudapp.net/$VersionOneV1Auth/"
     $UserName="admin"
     $Password="admin"
     $TfsUrl="http://$vm_name.cloudapp.net:8080/tfs/DefaultCollection/"
